@@ -544,6 +544,7 @@
     <button id="replay-btn" onclick="replayAll()">replay from start </button>
   </div>
 
+  <audio id="music-intro" src="1-7.mp3" loop></audio>
   <audio id="bg-music" src="ssstik.io_1780297174752.mp3" loop></audio>
   <!-- Tick sound for typewriter -->
   <audio id="tick-sound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3" preload="auto"></audio>
@@ -564,7 +565,6 @@ Dengan bertambahnya usia kamu, aku harap kamu selalu diberi kesehatan dan kelanc
 
 from: ur girlfriend mandaaa♡`;
 
-    // ── Loading screen ──
     window.addEventListener('load', () => {
       setTimeout(() => {
         const loader = document.getElementById('loader');
@@ -572,6 +572,14 @@ from: ur girlfriend mandaaa♡`;
         setTimeout(() => loader.remove(), 900);
       }, 1800);
     });
+
+    function startIntroMusic() {
+      const intro = document.getElementById('music-intro');
+      if (intro.paused) {
+        intro.volume = 0.7;
+        intro.play().catch(() => {});
+      }
+    }
 
     // ── Custom cursor ──
     const cursor = document.getElementById('cursor');
@@ -606,6 +614,9 @@ from: ur girlfriend mandaaa♡`;
 
     // ── Page navigation ──
     function goToPage(pageNum) {
+      // Mulai musik intro saat interaksi pertama (klik tombol page 1)
+      startIntroMusic();
+
       const current = document.getElementById(`page${currentPage}`);
       current.classList.add('exit');
       setTimeout(() => current.classList.remove('active', 'exit'), 650);
@@ -620,11 +631,17 @@ from: ur girlfriend mandaaa♡`;
       document.getElementById('page-counter').textContent = `${pageNum} / ${TOTAL_PAGES}`;
 
       if (pageNum === 8) {
+        // Fade out intro music, fade in birthday music
+        const intro = document.getElementById('music-intro');
         const music = document.getElementById('bg-music');
-        music.volume = 0;
-        music.muted = false;
-        music.play().catch(() => {});
-        fadeInMusic(music);
+        fadeOutMusic(intro, () => {
+          intro.pause();
+          intro.currentTime = 0;
+          music.volume = 0;
+          music.muted = false;
+          music.play().catch(() => {});
+          fadeInMusic(music);
+        });
 
         document.getElementById('mute-btn').style.display = 'flex';
         document.getElementById('skip-btn').style.display = 'block';
@@ -645,11 +662,26 @@ from: ur girlfriend mandaaa♡`;
       }, 150);
     }
 
+    // ── Music fade out ──
+    function fadeOutMusic(audio, callback) {
+      let vol = audio.volume;
+      const step = setInterval(() => {
+        vol = Math.max(vol - 0.05, 0);
+        audio.volume = vol;
+        if (vol <= 0) {
+          clearInterval(step);
+          if (callback) callback();
+        }
+      }, 80);
+    }
+
     // ── Mute toggle ──
     const muteBtn = document.getElementById('mute-btn');
     muteBtn.addEventListener('click', () => {
+      const intro = document.getElementById('music-intro');
       const music = document.getElementById('bg-music');
       isMuted = !isMuted;
+      intro.muted = isMuted;
       music.muted = isMuted;
       muteBtn.textContent = isMuted ? '🔇' : '🔊';
     });
@@ -701,9 +733,15 @@ from: ur girlfriend mandaaa♡`;
       document.getElementById('replay-btn').style.display = 'none';
       document.getElementById('scrollHint').style.display = 'none';
 
+      // Stop bg-music, restart intro
       const music = document.getElementById('bg-music');
       music.pause();
       music.currentTime = 0;
+
+      const intro = document.getElementById('music-intro');
+      intro.currentTime = 0;
+      intro.volume = 0.7;
+      intro.play().catch(() => {});
 
       const current = document.getElementById(`page${currentPage}`);
       current.classList.remove('active');
