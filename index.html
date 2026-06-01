@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="bday.png" />
+  <title>happy birthday my boyfriend!!</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>❤️</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #ffffff;
+      color: #8b0000;
+      font-family: 'Poppins', sans-serif;
+      overflow: hidden;
+      cursor: none;
+    }
+
+    /* ── Animated gradient background ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #ffe4e4, #ffffff, #ffd6d6, #ffffff);
+      background-size: 400% 400%;
+      animation: bgShift 10s ease infinite;
+      z-index: -1;
+    }
+
+    @keyframes bgShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* ── Custom cursor ── */
+    #cursor {
+      position: fixed;
+      width: 12px;
+      height: 12px;
+      background: #c0392b;
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 99999;
+      transition: transform 0.1s ease;
+    }
+
+    /* ── Loading screen ── */
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      transition: opacity 0.8s ease;
+    }
+
+    #loader.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loader-heart {
+      font-size: 3rem;
+      animation: heartbeat 0.8s ease infinite;
+    }
+
+    .loader-text {
+      margin-top: 16px;
+      font-size: 1rem;
+      color: #8b0000;
+      opacity: 0.7;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(1.3); }
+    }
+
+    /* ── Progress bar ── */
+    #progress-bar-wrap {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: #ffd6d6;
+      z-index: 9000;
+    }
+
+    #progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #8b0000, #e74c3c);
+      transition: width 0.6s ease;
+      width: 12.5%; /* 1/8 */
+    }
+
+    /* ── Page counter ── */
+    #page-counter {
+      position: fixed;
+      top: 12px;
+      right: 16px;
+      font-size: 0.75rem;
+      color: #8b0000;
+      opacity: 0.5;
+      z-index: 9000;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    /* ── Mute button ── */
+    #mute-btn {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      background: #c0392b;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      z-index: 9000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s;
+    }
+
+    #mute-btn:hover { background: #a93226; }
+
+    /* ── Pages ── */
+    .page {
+      height: 100vh;
+      width: 100vw;
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(60px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .page.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+    }
+
+    .page.exit {
+      opacity: 0;
+      transform: translateX(-60px);
+      pointer-events: none;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+
+    .highlight {
+      color: #c0392b;
+      font-weight: bold;
+    }
+
+    .button {
+      background: rgba(255, 255, 255, 0.15);
+      color: #8b0000;
+      border: 1.5px solid rgba(192, 57, 43, 0.4);
+      border-radius: 30px;
+      padding: 14px 32px;
+      font-size: 1.1rem;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 24px;
+      letter-spacing: 0.5px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 20px rgba(192, 57, 43, 0.15), inset 0 1px 0 rgba(255,255,255,0.5);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .button:hover {
+      background: rgba(192, 57, 43, 0.18);
+      border-color: rgba(192, 57, 43, 0.7);
+      color: #6b0000;
+      transform: scale(1.06) translateY(-2px);
+      box-shadow: 0 8px 32px rgba(192, 57, 43, 0.25), inset 0 1px 0 rgba(255,255,255,0.6);
+    }
+
+    .button:active {
+      transform: scale(0.97) translateY(0);
+      box-shadow: 0 2px 10px rgba(192, 57, 43, 0.15);
+    }
+
+    img {
+      width: min(60vw, 50vh);
+      height: min(60vw, 50vh);
+      object-fit: cover;
+      border-radius: 16px;
+      margin-bottom: 20px;
+    }
+
+    /* ── Letter box ── */
+    .letter {
+      white-space: pre-line;
+      font-size: 1.05rem;
+      max-width: 600px;
+      text-align: left;
+      border-left: 3px solid #e74c3c;
+      padding-left: 15px;
+      max-height: 300px;
+      overflow-y: auto;
+      line-height: 1.6;
+      margin-top: 20px;
+      scroll-behavior: smooth;
+    }
+
+    /* Scroll indicator */
+    .scroll-hint {
+      font-size: 0.75rem;
+      color: #8b0000;
+      opacity: 0.5;
+      margin-top: 6px;
+      animation: bounce 1.5s ease infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(4px); }
+    }
+
+    /* ── Skip button ── */
+    #skip-btn {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      background: transparent;
+      border: 1px solid #c0392b;
+      color: #c0392b;
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      z-index: 9000;
+      display: none;
+      transition: background 0.3s, color 0.3s;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    #skip-btn:hover {
+      background: #c0392b;
+      color: #fff;
+    }
+
+    /* ── Replay button ── */
+    #replay-btn {
+      background: transparent;
+      border: 2px solid #c0392b;
+      color: #c0392b;
+      border-radius: 25px;
+      padding: 10px 24px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 16px;
+      transition: background 0.3s, color 0.3s;
+      font-family: 'Poppins', sans-serif;
+      display: none;
+    }
+
+    #replay-btn:hover {
+      background: #c0392b;
+      color: #fff;
+    }
+
+    /* ── Falling symbols ── */
+    .falling {
+      position: fixed;
+      top: -30px;
+      font-size: 24px;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(110vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* ── Cursor sparkles ── */
+    .sparkle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 99998;
+      font-size: 14px;
+      animation: sparkle-fade 0.6s ease forwards;
+    }
+
+    @keyframes sparkle-fade {
+      0%   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -80%) scale(0.3); }
+    }
+
+    /* ── Cake ── */
+    .cake-wrap {
+      display: flex;
+      justify-content: center;
+      margin: 8px 0 4px;
+    }
+
+    .cake {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    .candle {
+      width: 10px;
+      height: 22px;
+      background: linear-gradient(180deg, #facc15, #f59e0b);
+      border-radius: 3px 3px 0 0;
+      position: relative;
+      margin-bottom: -1px;
+    }
+
+    .flame {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 10px;
+      height: 14px;
+      background: radial-gradient(ellipse at 50% 80%, #fff 0%, #facc15 40%, #f97316 70%, transparent 100%);
+      border-radius: 50% 50% 30% 30%;
+      animation: flicker 0.6s ease-in-out infinite alternate;
+      filter: drop-shadow(0 0 4px #f97316);
+    }
+
+    @keyframes flicker {
+      0%   { transform: translateX(-50%) scaleX(1)   scaleY(1)    rotate(-2deg); }
+      100% { transform: translateX(-50%) scaleX(0.85) scaleY(1.1) rotate(2deg); }
+    }
+
+    .cake-top {
+      width: 80px;
+      height: 22px;
+      background: linear-gradient(180deg, #fda4af, #fb7185);
+      border-radius: 6px 6px 0 0;
+      box-shadow: inset 0 3px 6px rgba(255,255,255,0.3);
+      position: relative;
+    }
+
+    .cake-top::after {
+      content: '· · ·';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 10px;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 3px;
+    }
+
+    .cake-mid {
+      width: 90px;
+      height: 26px;
+      background: linear-gradient(180deg, #fecdd3, #fda4af);
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.25);
+    }
+
+    .cake-bot {
+      width: 100px;
+      height: 28px;
+      background: linear-gradient(180deg, #ffe4e6, #fecdd3);
+      border-radius: 0 0 4px 4px;
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.2);
+    }
+
+    .plate {
+      width: 116px;
+      height: 8px;
+      background: linear-gradient(180deg, #f1f5f9, #e2e8f0);
+      border-radius: 50%;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      margin-top: 2px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      h1 { font-size: 1.8rem; }
+      h2 { font-size: 1.5rem; }
+      .button { padding: 10px 20px; font-size: 1rem; }
+      .letter { font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom cursor -->
+  <div id="cursor"></div>
+
+  <!-- Loading screen -->
+  <div id="loader">
+    <div class="loader-heart">❤️</div>
+    <div class="loader-text">loading something special…</div>
+  </div>
+
+  <!-- Progress bar -->
+  <div id="progress-bar-wrap">
+    <div id="progress-bar"></div>
+  </div>
+
+  <!-- Page counter -->
+  <div id="page-counter">1 / 8</div>
+
+  <!-- Mute button -->
+  <button id="mute-btn" title="toggle music">🔊</button>
+
+  <!-- Skip typewriter button -->
+  <button id="skip-btn">skip ⏩</button>
+
+  <!-- ── Pages ── -->
+  <div class="page active" id="page1">
+    <img src="https://happiestbday-mybf.netlify.app/1.gif" alt="Cute Icon" />
+    <h1>happy birthday <span class="highlight">my boyfriend!!</span></h1>
+    <p>klik dong ganteng ✨</p>
+    <button class="button" onclick="goToPage(2)">click me please</button>
+  </div>
+
+  <div class="page" id="page2">
+    <img src="https://happiestbday-mybf.netlify.app/2.gif" alt="Envelope" />
+    <p>you get more amazing every year.<br>happy birthday, mine.</p>
+    <button class="button" onclick="goToPage(3)">open it ♡</button>
+  </div>
+
+  <div class="page" id="page3">
+    <img src="https://happiestbday-mybf.netlify.app/3.gif" alt="Heart Icon" />
+    <p>you're already the birthday boy, did you have to be this good-looking too?<br>not fair.</p>
+    <button class="button" onclick="goToPage(4)"> ♡</button>
+  </div>
+
+  <div class="page" id="page4">
+    <img src="https://happiestbday-mybf.netlify.app/4.gif" alt="Love Note" />
+    <p>okay okay last one fr<br>i made something for your bday, read it slowly yaa 🎂</p>
+    <button class="button" onclick="goToPage(5)">okaay ♡</button>
+  </div>
+
+  <div class="page" id="page5">
+    <img src="1.jpeg" alt="Cute Love" />
+    <h1>you deserve all the love in the world today and always. happy birthday, my boyfriend 🤍</h1>
+    <p>just two outlines, but the warmth says it all.</p>
+    <button class="button" onclick="goToPage(6)">open this (♡˙ᵕ˙♡)</button>
+  </div>
+
+  <div class="page" id="page6">
+    <img src="2.jpeg" alt="Cute Love" />
+    <h1>every year, you grow wiser, kinder, and even more amazing. happy birthday, my boy ♡</h1>
+    <p>just you, being effortlessly my favorite view.</p>
+    <button class="button" onclick="goToPage(7)">♡</button>
+  </div>
+
+  <div class="page" id="page7">
+    <div class="loader-heart">❤️</div>
+    <h1>i swear every time we take a photo together, i end up liking you even more.</h1>
+    <p>it's your day, my boyfriend. scroll down, i left a little letter for you 🎂</p>
+    <button class="button" onclick="goToPage(8)">♡</button>
+  </div>
+
+  <div class="page" id="page8" style="font-family: 'Montserrat', sans-serif;">
+    
+
+    <!-- Birthday cake -->
+    <div class="cake-wrap">
+      <div class="cake">
+        <div class="candle"><div class="flame"></div></div>
+        <div class="cake-top"></div>
+        <div class="cake-mid"></div>
+        <div class="cake-bot"></div>
+        <div class="plate"></div>
+      </div>
+    </div>
+
+    <h2>happy birthday cintaaaaa</h2>
+
+    <div class="letter" id="letterText"></div>
+    <p class="scroll-hint" id="scrollHint" style="display:none;">↓ scroll to read more</p>
+    <button id="replay-btn" onclick="replayAll()">replay from start </button>
+  </div>
+
+  <audio id="bg-music" src="ssstik.io_1780297174752.mp3" loop></audio>
+  <!-- Tick sound for typewriter -->
+  <audio id="tick-sound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3" preload="auto"></audio>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    const TOTAL_PAGES = 8;
+    let currentPage = 1;
+    let typingInterval = null;
+    let typingDone = false;
+    let isMuted = false;
+    let fallingInterval = null;
+
+    const fullLetter = `it's your special dayy, wish u all the bestt sayang. selamat bertumbuh jauh lebih baik sayangku cintaaku, panjang umur, a wish for u on ur birthday, whatever u ask may u receive, whatever u seek may u find, whatever u wish may it be fulfilled on ur birthday and together, i hope u will walk on this journey knowing that u belong babe, i hope even if things sometime do not go ur way u will stop trying, u will not give up on urself and on ur thoughest days, i hope u will reminding your self of this word "u deserve better, kamu layak dicintai dan dirayakan dalam hal apapun!!. n may allah grant u what ur heart truly desire, may allah make everything u want good for u, so that may accept all ur prayers and wishes babe thank u for accepting me.🥺🥺💗💗
+sometimes, yang bisa diandelin hanya kamu sendiri, tapi jangan pernah kamu ngerasa sendiri, if you need someone to talk im here, and always here, masih punya diri kamu sendiri, kamu punya tuhan, dan aku sayang!!
+semoga hal baik selalu beriringan denganmu, semoga semesta selalu berpihak sama kamu, semoga jalanmu selalu di permudahkan, teruslah tumbuh, teruslah melangkah & berbahagia. aku akan selalu bangga atas setiap proses yang sudah kamu lalui anak hebat anak kuat anak gantengg, selamat berkelana, i will always support u!!.💐💐💗💗
+
+from: ur girlfriend mandaaa♡`;
+
+    // ── Loading screen ──
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const loader = document.getElementById('loader');
+        loader.classList.add('hide');
+        setTimeout(() => loader.remove(), 900);
+      }, 1800);
+    });
+
+    // ── Custom cursor ──
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top  = e.clientY + 'px';
+      spawnSparkle(e.clientX, e.clientY);
+    });
+
+    function spawnSparkle(x, y) {
+      if (Math.random() > 0.3) return; // throttle
+      const el = document.createElement('div');
+      el.classList.add('sparkle');
+      el.innerText = ['✦','✧','⋆','·'][Math.floor(Math.random() * 4)];
+      el.style.left = x + 'px';
+      el.style.top  = y + 'px';
+      el.style.color = Math.random() > 0.5 ? '#c0392b' : '#facc15';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 650);
+    }
+
+    // ── Touch / swipe support ──
+    let touchStartX = 0;
+    document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+    document.addEventListener('touchend', e => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0 && currentPage < TOTAL_PAGES) goToPage(currentPage + 1);
+        // no back-swipe intentionally (one-way journey)
+      }
+    });
+
+    // ── Page navigation ──
+    function goToPage(pageNum) {
+      const current = document.getElementById(`page${currentPage}`);
+      current.classList.add('exit');
+      setTimeout(() => current.classList.remove('active', 'exit'), 650);
+
+      currentPage = pageNum;
+      const next = document.getElementById(`page${pageNum}`);
+      next.classList.add('active');
+
+      // progress bar
+      document.getElementById('progress-bar').style.width = (pageNum / TOTAL_PAGES * 100) + '%';
+      // counter
+      document.getElementById('page-counter').textContent = `${pageNum} / ${TOTAL_PAGES}`;
+
+      if (pageNum === 8) {
+        const music = document.getElementById('bg-music');
+        music.volume = 0;
+        music.muted = false;
+        music.play().catch(() => {});
+        fadeInMusic(music);
+
+        document.getElementById('mute-btn').style.display = 'flex';
+        document.getElementById('skip-btn').style.display = 'block';
+
+        confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
+        startTyping();
+        startFallingSymbols();
+      }
+    }
+
+    // ── Music fade in ──
+    function fadeInMusic(audio) {
+      let vol = 0;
+      const step = setInterval(() => {
+        vol = Math.min(vol + 0.05, 1);
+        audio.volume = vol;
+        if (vol >= 1) clearInterval(step);
+      }, 150);
+    }
+
+    // ── Mute toggle ──
+    const muteBtn = document.getElementById('mute-btn');
+    muteBtn.addEventListener('click', () => {
+      const music = document.getElementById('bg-music');
+      isMuted = !isMuted;
+      music.muted = isMuted;
+      muteBtn.textContent = isMuted ? '🔇' : '🔊';
+    });
+
+    // ── Typewriter ──
+    function startTyping() {
+      typingDone = false;
+      const el = document.getElementById('letterText');
+      el.innerHTML = '';
+      let i = 0;
+
+      typingInterval = setInterval(() => {
+        if (i < fullLetter.length) {
+          el.innerHTML += fullLetter.charAt(i);
+          el.scrollTop = el.scrollHeight;
+          i++;
+
+          // show scroll hint once letter overflows
+          if (el.scrollHeight > el.clientHeight) {
+            document.getElementById('scrollHint').style.display = 'block';
+          }
+        } else {
+          clearInterval(typingInterval);
+          typingDone = true;
+          document.getElementById('skip-btn').style.display = 'none';
+          document.getElementById('replay-btn').style.display = 'inline-block';
+        }
+      }, 25);
+    }
+
+    // ── Skip typewriter ──
+    document.getElementById('skip-btn').addEventListener('click', () => {
+      if (typingInterval) clearInterval(typingInterval);
+      const el = document.getElementById('letterText');
+      el.innerHTML = fullLetter;
+      el.scrollTop = el.scrollHeight;
+      typingDone = true;
+      document.getElementById('skip-btn').style.display = 'none';
+      document.getElementById('replay-btn').style.display = 'inline-block';
+      document.getElementById('scrollHint').style.display = 'block';
+    });
+
+    // ── Replay ──
+    function replayAll() {
+      if (fallingInterval) clearInterval(fallingInterval);
+      document.querySelectorAll('.falling').forEach(el => el.remove());
+      document.getElementById('mute-btn').style.display = 'none';
+      document.getElementById('skip-btn').style.display = 'none';
+      document.getElementById('replay-btn').style.display = 'none';
+      document.getElementById('scrollHint').style.display = 'none';
+
+      const music = document.getElementById('bg-music');
+      music.pause();
+      music.currentTime = 0;
+
+      const current = document.getElementById(`page${currentPage}`);
+      current.classList.remove('active');
+
+      currentPage = 1;
+      document.getElementById('progress-bar').style.width = '12.5%';
+      document.getElementById('page-counter').textContent = '1 / 8';
+
+      const first = document.getElementById('page1');
+      first.style.transform = 'translateX(0)';
+      first.classList.add('active');
+    }
+
+    // ── Falling symbols ──
+    function startFallingSymbols() {
+      fallingInterval = setInterval(() => {
+        const el = document.createElement('div');
+        el.classList.add('falling');
+        const symbols = ['❤️','💫','✨','🎂','🎉'];
+        el.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.animation = `fall ${3 + Math.random() * 2}s linear forwards`;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 6000);
+      }, 300);
+    }
+  </script>
+</body>
+</html>
